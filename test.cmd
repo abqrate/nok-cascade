@@ -7,4 +7,4 @@ set ALICE_KEY=110001010111100100100000110100011100011110110111000011110111000110
 rem .\venv\Scripts\http POST http://127.0.0.1:15995/bob/api/v1.0/start_reconciliation
 rem .\venv\Scripts\http POST http://127.0.0.1:15995/bob/api/v1.0/ask_parities blocks:=[[0,1],[4,5],[5,6,7]]
 
-.\venv\Scripts\http POST http://127.0.0.1:15994/alice/api/v1.0/reconcile key=%ALICE_KEY% bob_ip=127.0.0.1
+.\venv\Scripts\http POST http://127.0.0.1:15994/alice/api/v1.0/reconcile key=%ALICE_KEY% bob_ip=127.0.0.1 qber=0.05
