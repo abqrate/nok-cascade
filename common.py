@@ -6,7 +6,8 @@ from flask import Flask, jsonify, make_response, request, abort
 from cascade.key import Key
 
 FLASK_HOST = '0.0.0.0'
-FLASK_PORT = 15994
+FLASK_PORT_ALICE = 15994
+FLASK_PORT_BOB = 15995
 
 # configure logging
 logging.basicConfig(format='%(levelname)-8s [%(asctime)s] %(message)s', level=logging.INFO)
@@ -17,23 +18,23 @@ app = Flask(__name__)
 
 def get_key_from_request() -> Key:
     if not request.json or 'key' not in request.json:
-        abort(400)
+        abort(400, 'there no "key" parameter in the request')
 
     key_str = request.json['key']
     try:
         return Key(key_str)
     except ValueError:
-        abort(400)
-
-
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': str(error)}), 404)
+        abort(400, 'key must contain 0s and 1s only')
 
 
 @app.errorhandler(400)
 def bad_request_400(error):
     return make_response(jsonify({'error': str(error)}), 400)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': str(error)}), 404)
 
 
 @app.errorhandler(405)
