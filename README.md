@@ -1,21 +1,8 @@
-# Scripts for key reconciliation phase of QKD
+# Scripts for the QKD key reconciliation phase
 
 ### The scripts structure
 
 There are two scripts, bob.py and alice.py. They should be run on the Bob and Alice computers.
-Both scripts are implemented as REST web services.
-They are also communicating each other via HTTP REST to do all the work.
-
-In order to reconcile some pair of keys one should first call PUT method on the Bob computer:
-```shell
-http PUT http://127.0.0.1:15995/bob/api/v1.0/key key=<bob_key>
-```
-
-Next - call POST method on the Alice computer:
-```shell
-http POST http://127.0.0.1:15994/alice/api/v1.0/reconcile key=<alice_key> bob_ip=127.0.0.1 qber=0.05
-```
-The latter returns reconciled key and number of bits leaked to Eve.
 
 ### The Cascade algorithm
 
@@ -34,9 +21,18 @@ python.exe -m venv venv
 
 ### Configuring & Running
 
-Optionally edit common.py to modify the webservices listening IP and ports.
+Edit config.py to set variables.
+Create random_seed.dat file with several kilobytes of random data identical on both Alice and Bob side.
 
-Run bob.py on the Bob computer, alice.py on the Alice computer.
+Run bob.py on the Bob computer:
+```shell
+.\venv\Scripts\python bob.py
+```
+
+Run alice.py on the Alice computer:
+```shell
+.\venv\Scripts\python alice.py
+```
 
 
 ## Authors

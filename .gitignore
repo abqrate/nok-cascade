@@ -1,5 +1,7 @@
 __pycache__
+keys
 venv
+random_seed.dat
 
 
 # source: https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
