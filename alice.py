@@ -102,7 +102,7 @@ def security_amplification(bits_compromised: int):
 
 
 def write_keys():
-    filename = f'{datetime.datetime.now():%Y%m%d-%H%M%S-%f.dat}'
+    filename = f'secure-{datetime.datetime.now():%Y%m%d-%H%M%S-%f.dat}'
     post_with_retries(BOB_API_URL + '/write_amp_key', json={'filename': filename}, func_descr='Write keys')
     write_amp_key(KEYS_FOLDER_ALICE, filename)
 
@@ -122,7 +122,11 @@ if __name__ == '__main__':
                 sleep(DELAY_ON_WAITING_RAWKEY_FILES)
                 consume_rawkey_files()
 
-        post_with_retries(BOB_API_URL + '/split_off_keyframe', 'Alice main cycle')
+        post_with_retries(
+            BOB_API_URL + '/split_off_keyframe',
+            json={'buffer_size': len(state.rawkey_buffer)},
+            func_descr='Alice main cycle'
+        )
         split_off_keyframe()
 
         qber_estimated = estimate_qber()

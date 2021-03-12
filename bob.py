@@ -15,6 +15,17 @@ def reset_state_on_bob():
 
 @app.route('/bob/api/v1.0/split_off_keyframe', methods=['POST'])
 def split_off_keyframe_on_bob():
+    if not request.json or 'buffer_size' not in request.json:
+        abort(400, 'there is no "buffer_size" parameter in the request')
+
+    buffer_size_alice = request.json['buffer_size']
+    if not isinstance(buffer_size_alice, int):
+        abort(400, '"buffer_size" parameter must be string')
+
+    buffer_size_bob = len(state.rawkey_buffer)
+    if buffer_size_bob != buffer_size_alice:
+        abort(500, f"size of Bob's and Alice's rawkey buffers are different, {buffer_size_bob} != {buffer_size_alice}")
+
     split_off_keyframe()
     return jsonify({'result': 'ok'})
 
@@ -126,7 +137,6 @@ def end_reconciliation():
         abort(400, 'end_reconciliation: reconciliation is not in progress')
 
     state.reconciliation_started = False
-    state.key = None
 
     return jsonify({'result': 'ok'})
 

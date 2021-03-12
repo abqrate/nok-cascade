@@ -47,7 +47,7 @@ def reset_state():
 
     # calculating number of bytes needed for Toeplitz matrices construction
     random_bytes_needed = ceil((COMPARE_FRAME_TOEPLITZ_HEIGHT + frame_size*3) / 8.0)
-    assert len(state.random_seed) >= random_bytes_needed
+    assert len(state.random_seed) >= random_bytes_needed, 'not enough random seed'
 
     # split off needed bytes and convert them to array of bits
     random_bits = bitarray()
@@ -55,16 +55,16 @@ def reset_state():
     state.random_seed = state.random_seed[random_bytes_needed:]
 
     # constructing Toeplitz matrix for reconciled keys comparison
-    column = [int(x) for x in random_bits[:COMPARE_FRAME_TOEPLITZ_HEIGHT]]
+    column = [bool(x) for x in random_bits[:COMPARE_FRAME_TOEPLITZ_HEIGHT]]
     random_bits = random_bits[COMPARE_FRAME_TOEPLITZ_HEIGHT:]
-    row = [int(x) for x in random_bits[:frame_size]]
+    row = [bool(x) for x in random_bits[:frame_size]]
     random_bits = random_bits[frame_size:]
     state.toeplitz_cmp = toeplitz(column, row)
 
     # constructing Toeplitz matrix for security amplification
-    column = [int(x) for x in random_bits[:frame_size-COMPARE_FRAME_TOEPLITZ_HEIGHT]]
+    column = [bool(x) for x in random_bits[:frame_size-COMPARE_FRAME_TOEPLITZ_HEIGHT]]
     random_bits = random_bits[COMPARE_FRAME_TOEPLITZ_HEIGHT-COMPARE_FRAME_TOEPLITZ_HEIGHT:]
-    row = [int(x) for x in random_bits[:frame_size]]
+    row = [bool(x) for x in random_bits[:frame_size]]
     # random_bits = random_bits[frame_size:]
     state.toeplitz_amp = toeplitz(column, row)
 
@@ -96,7 +96,7 @@ def calc_security_amplified_key(bits_compromised: int):
     assert bits_compromised < state.key.get_size()
     assert bits_compromised >= COMPARE_FRAME_TOEPLITZ_HEIGHT
     key_vector = [ord(x)-ord('0') for x in str(state.key)]
-    amp_vector = np.dot(state.toeplitz_amp, key_vector)
+    amp_vector = [x % 2 for x in np.dot(state.toeplitz_amp, key_vector)]
     amp_vector = amp_vector[:state.key.get_size() - bits_compromised]
     state.amp_key = bitarray(amp_vector)
 
@@ -135,10 +135,10 @@ def split_off_keyframe():
 
 
 def calc_hash_for_compare() -> bitarray:
-    assert state.key.get_size() == len(state.toeplitz_cmp)
+    assert state.key.get_size() == len(state.toeplitz_cmp[0]), "toeplitz matrix width is incorrect"
 
     key_vector = [ord(c)-ord('0') for c in str(state.key)]
-    result = np.dot(state.toeplitz_compare, key_vector)
+    result = [x % 2 for x in np.dot(state.toeplitz_cmp, key_vector)]
 
     return bitarray(result)
 
@@ -148,6 +148,7 @@ def write_amp_key(folder, filename):
     amp_key_size = len(state.amp_key) // 8 * 8
     key_bytes = state.amp_key[:amp_key_size].tobytes()
     file_path = os.path.join(folder, filename)
-    with open(file_path, 'wb') as f:
+    with open(file_path + '.tmp', 'wb') as f:
         f.write(key_bytes)
+    os.rename(file_path + '.tmp', file_path)
     state.amp_key = bitarray()

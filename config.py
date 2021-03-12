@@ -5,7 +5,7 @@ KEYS_FOLDER_ALICE = 'keys\\Alice'         # Bob's directory where raw key files 
 KEYS_FOLDER_BOB = 'keys\\Bob'             # Alice's directory where raw key files are read and result files are saved
 RANDOM_SEED_FILENAME = 'random_seed.dat'  # filename with random bytes for Toeplitz matrix construction
 
-KEYFRAME_SIZE = 2048                      # size of reconciliation keyframes, in bytes
+KEYFRAME_SIZE = 2000                      # size of reconciliation keyframes, in bytes
 KEYPART_QBER_ESTIMATION = 0.1             # this part of each keyframe are used for QBER estimation
 KEYPART_QBER_ESTIMATION_SPLITS = 10       # number of blocks on which this part is split across keyframe
 COMPARE_FRAME_TOEPLITZ_HEIGHT = 40        # size of hash used to compare reconciled keys, in bits
